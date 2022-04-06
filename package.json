@@ -6,16 +6,17 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wix-private/stories-extractor.git"
+    "url": "git+https://github.com/wix-incubator/stories-extractor.git"
   },
   "author": "nissang@wix.com",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/wix-private/stories-extractor/issues"
+    "url": "https://github.com/wix-incubator/stories-extractor/issues"
   },
-  "homepage": "https://github.com/wix-private/stories-extractor#readme",
+  "homepage": "https://github.com/wix-incubator/stories-extractor#readme",
   "dependencies": {
     "express": "^4.17.3",
     "fs-extra": "^10.0.1",
