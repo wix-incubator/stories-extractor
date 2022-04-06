@@ -69,7 +69,9 @@ const usePuppeteerBrowser = async () => {
     }
 };
 
-export async function extract(input, targetPath) {
+async function extract(input, targetPath) {
+    console.log(`input: ${input}`);
+    console.log(`targetPath: ${targetPath}`);
     if (input && targetPath) {
         const [location, exit] = await useLocation(input);
 
@@ -84,3 +86,6 @@ export async function extract(input, targetPath) {
         );
     }
 }
+
+console.log(`process.argv: ${process.argv}`)
+extract(process.argv[2],process.argv[3]);
