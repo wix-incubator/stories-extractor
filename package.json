@@ -1,6 +1,6 @@
 {
   "name": "stories-extractor",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "extract stories ids from storybook",
   "main": "index.js",
   "scripts": {

@@ -1,8 +1,8 @@
-const path = require('path');
-const { writeFile, stat } = require('fs-extra');
-const puppeteerCore = require('puppeteer-core');
-const express = require('express');
-const  fp = require("find-free-port")
+import { resolve as _resolve, join } from 'path';
+import { writeFile, stat } from 'fs-extra';
+import { launch } from 'puppeteer-core';
+import express, { static as expressStatic } from 'express';
+import fp from "find-free-port";
 
 const read = async (url) => {
     const browser = await usePuppeteerBrowser();
@@ -29,7 +29,7 @@ const read = async (url) => {
 
 const useLocation = async (input) => {
     // check for input's existence
-    await stat(path.resolve(input));
+    await stat(_resolve(input));
 
     if (input.match(/^http/)) {
         return [input, async () => { }];
@@ -38,7 +38,7 @@ const useLocation = async (input) => {
     const app = express();
     const port = await fp(3000);
 
-    app.use(express.static(input));
+    app.use(expressStatic(input));
 
     return new Promise((resolve) => {
         const server = app.listen(port, () => {
@@ -54,15 +54,15 @@ const useLocation = async (input) => {
 const usePuppeteerBrowser = async () => {
     const args = ['--no-sandbox ', '--disable-setuid-sandbox'];
     try {
-        return await puppeteerCore.launch({ args, executablePath: process.env.SB_CHROMIUM_PATH });
+        return await launch({ args, executablePath: process.env.SB_CHROMIUM_PATH });
     } catch (e) {
         // it's not installed
         console.log('installing puppeteer...');
         return new Promise((resolve, reject) => {
             // eslint-disable-next-line global-require
             require('child_process').exec(
-                `node ${require.resolve(path.join('puppeteer-core', 'install.js'))}`,
-                (error) => (error ? reject(error) : resolve(puppeteerCore.launch({ args })))
+                `node ${require.resolve(join('puppeteer-core', 'install.js'))}`,
+                (error) => (error ? reject(error) : resolve(launch({ args })))
             );
         });
     }
