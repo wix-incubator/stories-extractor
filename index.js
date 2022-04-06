@@ -1,35 +1,50 @@
-import { resolve as _resolve, join } from 'path';
-import { writeFile, stat } from 'fs-extra';
-import { launch } from 'puppeteer-core';
-import express, { static as expressStatic } from 'express';
-import fp from "find-free-port";
+#!/usr/bin/env node
+
+const { resolve, join } = require('path');
+const { writeFile, stat } = require('fs-extra');
+const Puppeteer = require('puppeteer-core');
+const express = require('express');
+const fp = require("find-free-port");
 
 const read = async (url) => {
     const browser = await usePuppeteerBrowser();
     const page = await browser.newPage();
 
     await page.goto(url);
-       
+
     await page.waitForFunction(`
     (window.__STORYBOOK_PREVIEW__ && window.__STORYBOOK_PREVIEW__.extract && window.__STORYBOOK_PREVIEW__.extract()) ||
     (window.__STORYBOOK_STORY_STORE__ && window.__STORYBOOK_STORY_STORE__.extract && window.__STORYBOOK_STORY_STORE__.extract())
   `);
+
     const data = JSON.parse(
         await page.evaluate(async () => {
-            // eslint-disable-next-line no-undef
-            return JSON.stringify(window.__STORYBOOK_STORY_STORE__.getStoriesJsonData(), null, 2);
+            try {
+                const stories = window.__STORYBOOK_STORY_STORE__.getStoriesJsonData();
+
+                // eslint-disable-next-line no-undef
+                return JSON.stringify(Object.keys(stories.stories), null, 2);
+            }
+            catch (err) {
+                console.log(`failed extracting for storybook 6, trying storybook 5 API`);
+
+                const stories =  window.__STORYBOOK_CLIENT_API__.raw();
+
+                return JSON.stringify(stories.map(e => e.id), null, 2);                
+            }
         })
     );
 
     setImmediate(() => {
         browser.close();
     });
+
     return data;
 };
 
 const useLocation = async (input) => {
     // check for input's existence
-    await stat(_resolve(input));
+    await stat(resolve(input));
 
     if (input.match(/^http/)) {
         return [input, async () => { }];
@@ -38,10 +53,10 @@ const useLocation = async (input) => {
     const app = express();
     const port = await fp(3000);
 
-    app.use(expressStatic(input));
+    app.use(express.static(input));
 
     return new Promise((resolve) => {
-        const server = app.listen(port, () => {
+        const server = app.listen(port[0], () => {
             const result = `http://localhost:${port}/iframe.html`;
 
             console.log(`connecting to: ${result}`);
@@ -54,8 +69,9 @@ const useLocation = async (input) => {
 const usePuppeteerBrowser = async () => {
     const args = ['--no-sandbox ', '--disable-setuid-sandbox'];
     try {
-        return await launch({ args, executablePath: process.env.SB_CHROMIUM_PATH });
+        return await Puppeteer.launch({ args });
     } catch (e) {
+        console.log(e)
         // it's not installed
         console.log('installing puppeteer...');
         return new Promise((resolve, reject) => {
@@ -86,5 +102,4 @@ async function extract(input, targetPath) {
     }
 }
 
-console.log(`process.argv: ${process.argv}`)
-extract(process.argv[2],process.argv[3]);
+extract(process.argv[2], process.argv[3]);
