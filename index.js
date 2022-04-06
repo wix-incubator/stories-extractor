@@ -2,7 +2,7 @@ const path = require('path');
 const { writeFile, stat } = require('fs-extra');
 const puppeteerCore = require('puppeteer-core');
 const express = require('express');
-const getPort = require('get-port');
+const  fp = require("find-free-port")
 
 const read = async (url) => {
     const browser = await usePuppeteerBrowser();
@@ -36,10 +36,9 @@ const useLocation = async (input) => {
     }
 
     const app = express();
+    const port = await fp(3000);
 
     app.use(express.static(input));
-
-    const port = await getPort();
 
     return new Promise((resolve) => {
         const server = app.listen(port, () => {
