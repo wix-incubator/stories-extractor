@@ -9,9 +9,7 @@ const read = async (url) => {
     const page = await browser.newPage();
 
     await page.goto(url);
-
-    // we don't know whether we are running against a new or old storybook
-    // FIXME: add tests for both
+       
     await page.waitForFunction(`
     (window.__STORYBOOK_PREVIEW__ && window.__STORYBOOK_PREVIEW__.extract && window.__STORYBOOK_PREVIEW__.extract()) ||
     (window.__STORYBOOK_STORY_STORE__ && window.__STORYBOOK_STORY_STORE__.extract && window.__STORYBOOK_STORY_STORE__.extract())
