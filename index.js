@@ -22,14 +22,12 @@ const read = async (url) => {
             try {
                 const stories = window.__STORYBOOK_STORY_STORE__.getStoriesJsonData();
 
-                // eslint-disable-next-line no-undef
                 return JSON.stringify(Object.keys(stories.stories), null, 2);
             }
             catch (err) {
                 console.log(`failed extracting for storybook 6, trying storybook 5 API`);
 
                 const stories =  window.__STORYBOOK_CLIENT_API__.raw();
-
                 return JSON.stringify(stories.map(e => e.id), null, 2);                
             }
         })
@@ -75,7 +73,6 @@ const usePuppeteerBrowser = async () => {
         // it's not installed
         console.log('installing puppeteer...');
         return new Promise((resolve, reject) => {
-            // eslint-disable-next-line global-require
             require('child_process').exec(
                 `node ${require.resolve(join('puppeteer-core', 'install.js'))}`,
                 (error) => (error ? reject(error) : resolve(launch({ args })))
