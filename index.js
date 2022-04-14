@@ -75,7 +75,7 @@ const usePuppeteerBrowser = async () => {
         return new Promise((resolve, reject) => {
             require('child_process').exec(
                 `node ${require.resolve(join('puppeteer-core', 'install.js'))}`,
-                (error) => (error ? reject(error) : resolve(launch({ args })))
+                (error) => (error ? reject(error) : resolve(Puppeteer.launch({ args })))
             );
         });
     }
